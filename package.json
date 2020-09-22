@@ -1,0 +1,25 @@
+{
+  "name": "@isaac.frontend/testcafe-scaffolding",
+  "version": "2.0.0",
+  "description": "TestCafe scaffolding tool to setup your repository for end-to-end testing with TestCafe",
+  "author": "ISAAC E-commerce Solutions BV",
+  "license": "MIT",
+  "keywords": ["TestCafe", "end-to-end", "e2e", "testing"],
+  "bin": "./bin/init.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/isaaceindhoven/testcafe-scaffolding.git"
+  },
+  "bugs": {
+    "url": "https://github.com/isaaceindhoven/testcafe-scaffolding/issues"
+  },
+  "homepage": "https://github.com/isaaceindhoven/testcafe-scaffolding#readme",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "mkdir-recursive": "^0.4.0",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "@isaac.frontend/eslint-config-es6": "^3.0.0"
+  }
+}

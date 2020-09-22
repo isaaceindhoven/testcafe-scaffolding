@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "@isaac.frontend/eslint-config-es6"
+  ],
+  "globals": {
+    "fixture": true,
+    "test": true
+  }
+}
