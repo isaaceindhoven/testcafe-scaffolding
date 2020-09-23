@@ -31,4 +31,4 @@ Also, we'll install a `runner.js` in `tests/e2e` where we call the [TestCafé pr
 * [Common issues](docs/common-issues.md)
 
 ## License
-[MIT](https://github.com/isaaceindhoven/) © ISAAC E-commerce Solutions BV
+[MIT](https://github.com/isaaceindhoven/testcafe-scaffolding/blob/master/LICENSE) © ISAAC E-commerce Solutions BV
