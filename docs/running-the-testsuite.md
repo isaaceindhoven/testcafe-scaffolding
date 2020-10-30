@@ -6,7 +6,7 @@ There are various ways to run your test suite:
 
 ## Running locally
 
-The initializer script will install a basic runner at `tests/e2e/runner.js` and add a `test:e2e` script to your `package.json`. To start the script, run `npm run test:e2e` in the root of your project.
+The initializer script will install a basic runner at `tests/e2e/runner.js` and add a `test:e2e` script to your `package.json`. To start the script, run `npm run test:e2e` or `yarn test:e2e` in the root of your project.
 
 By default the Chrome browser is used and all the tests in your `tests`-folder are executed.
 
