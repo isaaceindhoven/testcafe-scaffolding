@@ -9,6 +9,7 @@ const fx = require('mkdir-recursive')
 const path = require('path')
 const execSync = require('child_process').exec
 const util = require('util')
+const { hasYarn } = require('yarn-or-npm')
 
 const pkg = path.resolve('package.json')
 // eslint-disable-next-line import/no-dynamic-require
@@ -135,7 +136,7 @@ const updatePackageJson = async ({
     isInstallAllureReporting,
     isInstallBrowserstack,
 }) => {
-    console.log(['', 'Updating package.json and installing packages...', ''].join('\n').gray)
+    console.log(['', 'Updating package.json...', ''].join('\n').gray)
 
     const packages = [
         'testcafe',
@@ -143,7 +144,7 @@ const updatePackageJson = async ({
         ...(isInstallBrowserstack ? ['testcafe-browser-provider-browserstack'] : []),
     ].join(' ')
 
-    const npmAddScript = (script) => {
+    const addScriptToPkgJson = (script) => {
         // eslint-disable-next-line import/no-dynamic-require, global-require
         const currentPkgObject = require(pkg)
 
@@ -162,19 +163,29 @@ const updatePackageJson = async ({
         }
     }
 
-    npmAddScript({
+    addScriptToPkgJson({
         key: 'test:e2e',
         value: `node ${testSuitePath}/runner.js`,
     })
 
-    await exec(`npm install --save-dev --force ${packages}`)
+    console.log(['', 'installing packages...', ''].join('\n').gray)
+
+    if (hasYarn()) {
+        await exec(`yarn add -D ${packages}`)
+    } else {
+        await exec(`npm install -D --force ${packages}`)
+    }
 
     console.log(['', 'package.json updated and new dependencies installed.', ''].join('\n').green)
 }
 
-const removeQaTools = async () => {
-    await exec('npm rm @isaac.frontend/testcafe-scaffolding', { verbose: false })
-    console.log('Removed @isaac.frontend/testcafe-scaffolding depedency'.green)
+const removeScaffoldingPkg = async () => {
+    if (hasYarn()) {
+        await exec('yarn remove @isaac.frontend/testcafe-scaffolding', { verbose: false })
+    } else {
+        await exec('npm rm @isaac.frontend/testcafe-scaffolding', { verbose: false })
+    }
+    console.log('Removed @isaac.frontend/testcafe-scaffolding dependency'.green)
 }
 
 const addFoldersToGitIgnore = ({ testSuitePath }) => {
@@ -201,20 +212,20 @@ ${testSuitePath}/screenshots
     process.on('unhandledRejection', (err) => { throw err })
 
     if (!fs.existsSync(pkg)) {
-        console.error('No package.json found. Please run this command in the root of your project or run "npm init"!'.bgRed.white.bold)
+        console.error('No package.json found. Please run this command in the root of your project or run "npm init" / "yarn init"!'.bgRed.white.bold)
         process.exit(1)
     }
 
     const testSuitePath = readlineSync.question('In which directory do you want to keep your test suite? (default: $<defaultInput>): ', {
         defaultInput: defaultTestSuitePath,
     })
-        // Always use forward slashes as it will be running in npm scripts
+        // Always use forward slashes as it will be running in package.json scripts
         .replace(/\\/, '/').replace(/^\/|\/$/, '')
 
     const isInstallExampleTests = readlineSync.keyInYN('Install example tests?')
     const isInstallAllureReporting = readlineSync.keyInYN('Install Allure reporting?')
     const isInstallBrowserstack = readlineSync.keyInYN('Install BrowserStack integration?')
-    const isRemovingIsaacQaTestcafe = pkgObject && pkgObject.devDependencies && pkgObject.devDependencies['@isaac.frontend/testcafe-scaffolding']
+    const isRemovingTestcafeScaffolding = pkgObject && pkgObject.devDependencies && pkgObject.devDependencies['@isaac.frontend/testcafe-scaffolding']
         ? readlineSync.keyInYN(
             'After running this initialization, you no longer need this tool as a dependency. Do you want to remove it after this script has ran?',
         )
@@ -227,7 +238,7 @@ ${testSuitePath}/screenshots
         `Example data             : ${`${isInstallExampleTests}`.bold}`,
         `Allure reporting         : ${`${isInstallAllureReporting}`.bold}`,
         `Browserstack integration : ${`${isInstallBrowserstack}`.bold}`,
-        ...(typeof isRemovingIsaacQaTestcafe !== 'undefined' ? [`Remove @isaac.frontend/testcafe-scaffolding : ${`${isRemovingIsaacQaTestcafe}`.bold}`] : []),
+        ...(typeof isRemovingTestcafeScaffolding !== 'undefined' ? [`Remove @isaac.frontend/testcafe-scaffolding : ${`${isRemovingTestcafeScaffolding}`.bold}`] : []),
         '',
     ].join('\n'))
 
@@ -247,7 +258,7 @@ ${testSuitePath}/screenshots
             addFoldersToGitIgnore(context)
             if (isInstallAllureReporting) createAllureConfig(context)
             await updatePackageJson(context)
-            if (typeof isRemovingIsaacQaTestcafe !== 'undefined' && isRemovingIsaacQaTestcafe === true) await removeQaTools()
+            if (typeof isRemovingTestcafeScaffolding !== 'undefined' && isRemovingTestcafeScaffolding === true) await removeScaffoldingPkg()
         } catch (err) {
             console.error('Something went horribly wrong!'.bgRed.white.bold)
             console.error(err.toString().red)
@@ -259,7 +270,7 @@ ${testSuitePath}/screenshots
             `All done. Your TestCafé test suite is now available in ${testSuitePath}`.green,
             'See https://github.com/isaaceindhoven/testcafe-scaffolding.git for more details and examples.',
             '',
-            'To run your test suite, type: `npm run test:e2e`'.bold,
+            'To run your test suite, type: `npm run test:e2e` or `yarn test:e2e`'.bold,
             '-'.repeat(100).gray,
         ].join('\n'))
     } else {

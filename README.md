@@ -4,10 +4,10 @@ This project aims to simplify and standardize the installation and configuration
 
 ## Installation
 
-_Note: these installation instructions assume you already have a `package.json` present in the root of your project. If you do not have this, run `npm init` and follow the instructions on screen._
+_Note: these installation instructions assume you already have a `package.json` present in the root of your project. If you do not have this, run `npm init` or `yarn init` and follow the instructions on screen._
 
 1. Next, run the initialization script `npx @isaac.frontend/testcafe-scaffolding` follow the on-screen instructions. This will install the proper dependencies and setup a directory structure in your project.
-2. To run your test suite locally, run: `npm run test:e2e`
+2. To run your test suite locally, run: `npm run test:e2e` or `yarn test:e2e`
 
 The latest version of the following dependencies will be installed, depending on the features you want:
 - [testcafe](https://www.npmjs.com/package/testcafe)
