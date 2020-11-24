@@ -9,8 +9,9 @@ const fx = require('mkdir-recursive')
 const path = require('path')
 const execSync = require('child_process').exec
 const util = require('util')
-const { hasYarn } = require('yarn-or-npm')
+const yarnOrNpm = require('yarn-or-npm')
 
+const hasYarn = yarnOrNpm() === 'yarn'
 const pkg = path.resolve('package.json')
 // eslint-disable-next-line import/no-dynamic-require
 const pkgObject = require(pkg)
@@ -174,7 +175,7 @@ const updatePackageJson = async ({
 
     console.log(['', 'installing packages...', ''].join('\n').gray)
 
-    if (hasYarn()) {
+    if (hasYarn) {
         await exec(`yarn add -D ${packages}`)
     } else {
         await exec(`npm install -D --force ${packages}`)
@@ -184,7 +185,7 @@ const updatePackageJson = async ({
 }
 
 const removeScaffoldingPkg = async () => {
-    if (hasYarn()) {
+    if (hasYarn) {
         await exec('yarn remove @isaac.frontend/testcafe-scaffolding', { verbose: false })
     } else {
         await exec('npm rm @isaac.frontend/testcafe-scaffolding', { verbose: false })
