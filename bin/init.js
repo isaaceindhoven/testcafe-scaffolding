@@ -9,8 +9,9 @@ const fx = require('mkdir-recursive')
 const path = require('path')
 const execSync = require('child_process').exec
 const util = require('util')
-const { hasYarn } = require('yarn-or-npm')
+const yarnOrNpm = require('yarn-or-npm')
 
+const hasYarn = yarnOrNpm() === 'yarn'
 const pkg = path.resolve('package.json')
 // eslint-disable-next-line import/no-dynamic-require
 const pkgObject = require(pkg)
@@ -38,7 +39,7 @@ const findAndReplaceInFile = ({ file, find, replace }) => fs.readFile(file, 'utf
 /**
  * Create the example TestCafe Page Models
  */
-const createPageModels = ({ testSuitePath, isInstallExampleTests }) => {
+const createPageModels = ({ testSuitePath, isInstallExampleTests, isInstallDSLExample }) => {
     const paths = ['dsl', 'tests', 'page-models']
 
     fx.mkdirSync(path.resolve(testSuitePath))
@@ -48,15 +49,19 @@ const createPageModels = ({ testSuitePath, isInstallExampleTests }) => {
             console.log(`Directory ${dstPath} already exists. Ignoring`.blue)
             return
         }
-        fs.mkdirSync(dstPath)
+
+        if (subDirectory !== 'dsl'
+            || (subDirectory === 'dsl' && isInstallDSLExample)) fs.mkdirSync(dstPath)
 
         // add .gitkeep files to the directories when no example tests are chosen
-        if (!isInstallExampleTests) {
+        if (!isInstallExampleTests && subDirectory !== 'dsl') {
             fs.closeSync(fs.openSync(path.join(dstPath, '.gitkeep'), 'w'))
         }
 
         // Copy example data:
-        if (isInstallExampleTests) {
+        if (isInstallExampleTests
+            && (subDirectory !== 'dsl'
+            || (subDirectory === 'dsl' && isInstallDSLExample))) {
             const sourcePath = path.join(__dirname, '..', 'examples', subDirectory)
             fs.readdirSync(`${sourcePath}`).forEach((file) => {
                 if (/\.js$/.test(file)) {
@@ -170,7 +175,7 @@ const updatePackageJson = async ({
 
     console.log(['', 'installing packages...', ''].join('\n').gray)
 
-    if (hasYarn()) {
+    if (hasYarn) {
         await exec(`yarn add -D ${packages}`)
     } else {
         await exec(`npm install -D --force ${packages}`)
@@ -180,7 +185,7 @@ const updatePackageJson = async ({
 }
 
 const removeScaffoldingPkg = async () => {
-    if (hasYarn()) {
+    if (hasYarn) {
         await exec('yarn remove @isaac.frontend/testcafe-scaffolding', { verbose: false })
     } else {
         await exec('npm rm @isaac.frontend/testcafe-scaffolding', { verbose: false })
@@ -223,6 +228,10 @@ ${testSuitePath}/screenshots
         .replace(/\\/, '/').replace(/^\/|\/$/, '')
 
     const isInstallExampleTests = readlineSync.keyInYN('Install example tests?')
+    const isInstallDSLExample = isInstallExampleTests
+        ? readlineSync.keyInYN('Install Domain Specific Language (DSL) folder? https://github.com/isaaceindhoven/testcafe-scaffolding/blob/master/docs/writing-the-testsuite.md')
+        : false
+
     const isInstallAllureReporting = readlineSync.keyInYN('Install Allure reporting?')
     const isInstallBrowserstack = readlineSync.keyInYN('Install BrowserStack integration?')
     const isRemovingTestcafeScaffolding = pkgObject && pkgObject.devDependencies && pkgObject.devDependencies['@isaac.frontend/testcafe-scaffolding']
@@ -236,6 +245,7 @@ ${testSuitePath}/screenshots
         'The following will be installed:'.gray,
         `Test suite path          : ${`${testSuitePath}`.bold}`,
         `Example data             : ${`${isInstallExampleTests}`.bold}`,
+        ...(isInstallExampleTests ? [`Example DSL              : ${`${isInstallDSLExample}`.bold}`] : []),
         `Allure reporting         : ${`${isInstallAllureReporting}`.bold}`,
         `Browserstack integration : ${`${isInstallBrowserstack}`.bold}`,
         ...(typeof isRemovingTestcafeScaffolding !== 'undefined' ? [`Remove @isaac.frontend/testcafe-scaffolding : ${`${isRemovingTestcafeScaffolding}`.bold}`] : []),
@@ -250,6 +260,7 @@ ${testSuitePath}/screenshots
             isInstallAllureReporting,
             isInstallBrowserstack,
             isInstallExampleTests,
+            isInstallDSLExample,
         }
 
         try {

@@ -5,15 +5,14 @@
  */
 
 import googleHomePage from '../page-models/google-home'
-import search from '../dsl/search'
-import results from '../dsl/results'
+import googleResultsPage from '../page-models/google-results'
 import isaacHomePage from '../page-models/isaac-website'
 
 fixture('ISAAC Google ranking')
     .page(googleHomePage.url)
 
 test('ISAAC is at #1 at Google for the search term \'isaac\'', async (t) => {
-    await search.enterSearchQuery('isaac')
-    await t.expect(results.getFirstLinkHref())
+    await googleHomePage.enterSearchQuery('isaac')
+    await t.expect(googleResultsPage.getFirstLinkHref())
         .eql(isaacHomePage.home)
 })
