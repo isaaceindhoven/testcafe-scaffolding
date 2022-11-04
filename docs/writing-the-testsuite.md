@@ -44,13 +44,12 @@ import ProductPage from '../page-models/catalog/product'
 Classes are used for CSS to apply styling to the page. Id's are often used for javascript hooks to apply interaction or to retrieve fields from a form.
 To separate concerns as much as possible and also make redesigns in the future easier for the written tests we introduce the concept of data-testid:
 ```html
-<img data-testid="logo" class="lazy-load logo" alt="ISAAC" src="/global/images/v4/logo.svg">
-<img data-testid="logo-inverse" class="lazy-load logo-inverse" alt="ISAAC" src="/global/images/v4/logo-white.svg">
+<a aria-label="Io logo" class="relative transition-opacity duration-500 Header_lightLogo__onWdF opacity-100 pointer-events-auto" href="/nl">
+
 ```
 With the html in place we can easily make selectors like:
 ```js
-const logo = Selector('[data-testid="logo"]')
-const logoInverse = Selector('[data-testid="logo-inverse"]')
+const logo = Selector('[aria-label="Io logo"]')
 ```
 This will make it clear for any other developer who looks at the code at a later point in time that this attribute is used for testing.
 This reduces the chance that future development will break the e2e tests easily.

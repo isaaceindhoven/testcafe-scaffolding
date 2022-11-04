@@ -1,22 +1,27 @@
 /**
- * This example test checks whether clicking the ISAAC logo navigates to the homepage.
- * Note that this test may fail when the ISAAC homepage changes.
+ * This example test checks whether clicking the iO logo navigates to the homepage.
+ * Note that this test may fail when the iO homepage changes.
  */
 
-import browser from '../utils/browser'
-import isaacHomePage from '../page-models/isaac-website'
+import { Browser } from "../utils/browser";
+import { HomePage } from "../page-models/home-page";
+import { AboutPage } from "../page-models/about-page";
+import { CookieWall } from "../page-models/cookie-wall";
 
-fixture('ISAAC website logo')
-    .page(isaacHomePage.home)
+fixture("iO website logo").page(HomePage().homeURL);
 
-test('Logo existence', async (t) => {
+test.before(async () => {
+    await CookieWall().acceptCookies();
+})("Logo existence", async (t) => {
+    await t.expect(HomePage().logo.exists).eql(true);
+});
+
+test.before(async () => {
+    await CookieWall().acceptCookies();
+})("Clicking the logo navigates to home", async (t) => {
     await t
-        .expect(isaacHomePage.logo.exists).eql(true)
-})
-
-test('Clicking the logo navigates to home', async (t) => {
-    await t
-        .navigateTo(isaacHomePage.about)
-        .click(isaacHomePage.logo)
-        .expect(browser.getUrl()).eql(isaacHomePage.home)
-})
+        .navigateTo(AboutPage().aboutUrl)
+        .click(AboutPage().logo)
+        .expect(Browser().getUrl())
+        .eql(HomePage().homeURL);
+});
