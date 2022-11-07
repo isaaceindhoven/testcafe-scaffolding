@@ -65,10 +65,8 @@ const createPageModels = ({ testSuitePath, isInstallExampleTests }) => {
                 "examples",
                 subDirectory
             );
-            console.log({ sourcePath });
             fs.readdirSync(`${sourcePath}`).forEach((file) => {
                 if (/\.js$/.test(file)) {
-                    console.log({ file });
                     fs.copyFileSync(
                         path.join(sourcePath, file),
                         path.join(dstPath, file)
