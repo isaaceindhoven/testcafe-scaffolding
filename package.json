@@ -1,6 +1,6 @@
 {
   "name": "@isaac.frontend/testcafe-scaffolding",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "TestCafe scaffolding tool to setup your repository for end-to-end testing with TestCafe",
   "author": "ISAAC E-commerce Solutions BV",
   "license": "MIT",
